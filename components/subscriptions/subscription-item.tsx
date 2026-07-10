@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+import Link from "next/link";
 import { CalendarDays, ExternalLink, MoreVertical, Pencil, Trash2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -21,16 +23,27 @@ import { cn } from "@/lib/utils";
 
 interface SubscriptionItemProps {
   subscription: SubscriptionDTO;
-  onEdit: (subscription: SubscriptionDTO) => void;
-  onDelete: (subscription: SubscriptionDTO) => void;
+  onDelete: (subscription: SubscriptionDTO) => Promise<boolean>;
 }
 
 export function SubscriptionItem({
   subscription,
-  onEdit,
   onDelete,
 }: SubscriptionItemProps) {
   const isPaused = subscription.status === "PAUSED";
+  const [isConfirmingDelete, setIsConfirmingDelete] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+
+  const handleConfirmDelete = async () => {
+    setIsDeleting(true);
+    try {
+      const ok = await onDelete(subscription);
+      // If it failed, keep the card so the user can retry; reset the prompt.
+      if (!ok) setIsConfirmingDelete(false);
+    } finally {
+      setIsDeleting(false);
+    }
+  };
 
   return (
     <Card className={cn(isPaused && "opacity-60")}>
@@ -94,13 +107,15 @@ export function SubscriptionItem({
               <MoreVertical />
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end">
-              <DropdownMenuItem onClick={() => onEdit(subscription)}>
+              <DropdownMenuItem
+                render={<Link href={`/subscriptions/${subscription.id}`} />}
+              >
                 <Pencil />
                 Editar
               </DropdownMenuItem>
               <DropdownMenuItem
                 variant="destructive"
-                onClick={() => onDelete(subscription)}
+                onClick={() => setIsConfirmingDelete(true)}
               >
                 <Trash2 />
                 Eliminar
@@ -109,6 +124,32 @@ export function SubscriptionItem({
           </DropdownMenu>
         </div>
       </CardContent>
+
+      {isConfirmingDelete && (
+        <div className="flex flex-wrap items-center justify-between gap-3 border-t px-(--card-spacing) pt-(--card-spacing)">
+          <p className="text-sm">
+            ¿Eliminar <span className="font-medium">«{subscription.name}»</span>?
+          </p>
+          <div className="flex items-center gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsConfirmingDelete(false)}
+              disabled={isDeleting}
+            >
+              Cancelar
+            </Button>
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+            >
+              {isDeleting ? "Eliminando..." : "Sí, eliminar"}
+            </Button>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }

@@ -2,13 +2,8 @@
 
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
-import {
-  createSubscription,
-  deleteSubscription,
-  updateSubscription,
-} from "@/lib/actions/subscriptions";
+import { deleteSubscription } from "@/lib/actions/subscriptions";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
-import type { SubscriptionInput } from "@/lib/validations/subscription";
 import {
   daysUntilNextPayment,
   monthlyEquivalent,
@@ -31,33 +26,6 @@ export interface SubscriptionsSummary {
 
 export function useSubscriptions(initialSubscriptions: SubscriptionDTO[]) {
   const [subscriptions, setSubscriptions] = useState(initialSubscriptions);
-
-  const create = async (input: SubscriptionInput): Promise<boolean> => {
-    const result = await createSubscription(input);
-    if (!result.ok) {
-      toast.error(result.error);
-      return false;
-    }
-    setSubscriptions((prev) => [result.data, ...prev]);
-    toast.success("Suscripción creada");
-    return true;
-  };
-
-  const update = async (
-    id: string,
-    input: SubscriptionInput
-  ): Promise<boolean> => {
-    const result = await updateSubscription(id, input);
-    if (!result.ok) {
-      toast.error(result.error);
-      return false;
-    }
-    setSubscriptions((prev) =>
-      prev.map((sub) => (sub.id === id ? result.data : sub))
-    );
-    toast.success("Suscripción actualizada");
-    return true;
-  };
 
   const remove = async (id: string): Promise<boolean> => {
     const result = await deleteSubscription(id);
@@ -97,5 +65,5 @@ export function useSubscriptions(initialSubscriptions: SubscriptionDTO[]) {
     };
   }, [subscriptions]);
 
-  return { subscriptions, create, update, remove, summary };
+  return { subscriptions, remove, summary };
 }

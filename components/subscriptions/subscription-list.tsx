@@ -1,23 +1,18 @@
-"use client";
-
+import Link from "next/link";
 import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
 import { SubscriptionItem } from "./subscription-item";
 
 interface SubscriptionListProps {
   subscriptions: SubscriptionDTO[];
-  onEdit: (subscription: SubscriptionDTO) => void;
-  onDelete: (subscription: SubscriptionDTO) => void;
-  onAdd: () => void;
+  onDelete: (subscription: SubscriptionDTO) => Promise<boolean>;
 }
 
 export function SubscriptionList({
   subscriptions,
-  onEdit,
   onDelete,
-  onAdd,
 }: SubscriptionListProps) {
   if (subscriptions.length === 0) {
     return (
@@ -28,10 +23,10 @@ export function SubscriptionList({
             Registra tu primera suscripción para empezar a controlar tus gastos
             recurrentes.
           </p>
-          <Button onClick={onAdd}>
+          <Link href="/subscriptions/new" className={buttonVariants()}>
             <Plus data-icon="inline-start" />
             Nueva suscripción
-          </Button>
+          </Link>
         </CardContent>
       </Card>
     );
@@ -43,7 +38,6 @@ export function SubscriptionList({
         <SubscriptionItem
           key={subscription.id}
           subscription={subscription}
-          onEdit={onEdit}
           onDelete={onDelete}
         />
       ))}

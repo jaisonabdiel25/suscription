@@ -1,14 +1,17 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { Button, buttonVariants } from "@/components/ui/button";
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
+  Card,
+  CardContent,
+  CardDescription,
+  CardFooter,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -20,6 +23,10 @@ import {
 } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { useSubscriptionForm } from "@/hooks/use-subscription-form";
+import {
+  createSubscription,
+  updateSubscription,
+} from "@/lib/actions/subscriptions";
 import type {
   BillingCycle,
   Category,
@@ -65,44 +72,54 @@ const statusItems = SUBSCRIPTION_STATUSES.map((value) => ({
   label: STATUS_LABELS[value],
 }));
 
-interface SubscriptionFormDialogProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  /** Subscription being edited, or null to create a new one. */
-  subscription: SubscriptionDTO | null;
-  onSubmit: (input: SubscriptionInput) => Promise<boolean>;
-}
-
 function FieldError({ message }: { message?: string }) {
   if (!message) return null;
   return <p className="text-xs text-destructive">{message}</p>;
 }
 
-export function SubscriptionFormDialog({
-  open,
-  onOpenChange,
-  subscription,
-  onSubmit,
-}: SubscriptionFormDialogProps) {
+interface SubscriptionFormProps {
+  /** Subscription being edited, or null to create a new one. */
+  subscription: SubscriptionDTO | null;
+}
+
+export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
+  const router = useRouter();
   const isEditing = subscription !== null;
+
+  const onSubmit = async (input: SubscriptionInput): Promise<boolean> => {
+    const result = isEditing
+      ? await updateSubscription(subscription.id, input)
+      : await createSubscription(input);
+
+    if (!result.ok) {
+      toast.error(result.error);
+      return false;
+    }
+
+    toast.success(isEditing ? "Suscripción actualizada" : "Suscripción creada");
+    router.push("/dashboard");
+    router.refresh();
+    return true;
+  };
+
   const { values, errors, isSubmitting, setValue, handleSubmit } =
     useSubscriptionForm({ initial: subscription, onSubmit });
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-lg">
-        <DialogHeader>
-          <DialogTitle>
-            {isEditing ? "Editar suscripción" : "Nueva suscripción"}
-          </DialogTitle>
-          <DialogDescription>
-            {isEditing
-              ? "Actualiza los datos de esta suscripción."
-              : "Registra un servicio que pagas de forma recurrente."}
-          </DialogDescription>
-        </DialogHeader>
+    <Card className="mx-auto w-full max-w-lg">
+      <CardHeader>
+        <CardTitle>
+          {isEditing ? "Editar suscripción" : "Nueva suscripción"}
+        </CardTitle>
+        <CardDescription>
+          {isEditing
+            ? "Actualiza los datos de esta suscripción."
+            : "Registra un servicio que pagas de forma recurrente."}
+        </CardDescription>
+      </CardHeader>
 
-        <form onSubmit={handleSubmit} className="flex flex-col gap-4">
+      <form onSubmit={handleSubmit}>
+        <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="name">Nombre</Label>
             <Input
@@ -290,26 +307,25 @@ export function SubscriptionFormDialog({
             />
             <FieldError message={errors.notes} />
           </div>
+        </CardContent>
 
-          <DialogFooter>
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => onOpenChange(false)}
-              disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting
-                ? "Guardando..."
-                : isEditing
-                  ? "Guardar cambios"
-                  : "Crear suscripción"}
-            </Button>
-          </DialogFooter>
-        </form>
-      </DialogContent>
-    </Dialog>
+        <CardFooter className="mt-6 flex justify-end gap-2">
+          <Link
+            href="/dashboard"
+            className={buttonVariants({ variant: "outline" })}
+            aria-disabled={isSubmitting}
+          >
+            Cancelar
+          </Link>
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting
+              ? "Guardando..."
+              : isEditing
+                ? "Guardar cambios"
+                : "Crear suscripción"}
+          </Button>
+        </CardFooter>
+      </form>
+    </Card>
   );
 }

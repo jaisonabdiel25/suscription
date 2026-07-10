@@ -2,13 +2,17 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 const AUTH_PAGES = ["/login", "/signup"];
+const PROTECTED_PREFIXES = ["/dashboard", "/subscriptions"];
 
 export function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
   const { pathname } = request.nextUrl;
   const isAuthPage = AUTH_PAGES.includes(pathname);
+  const isProtected = PROTECTED_PREFIXES.some((prefix) =>
+    pathname.startsWith(prefix)
+  );
 
-  if (!sessionCookie && pathname.startsWith("/dashboard")) {
+  if (!sessionCookie && isProtected) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
