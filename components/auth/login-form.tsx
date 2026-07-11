@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useAuthForm } from "@/hooks/use-auth-form";
 
 export function LoginForm() {
@@ -21,7 +22,9 @@ export function LoginForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Iniciar sesión</CardTitle>
+        <CardTitle role="heading" aria-level={1}>
+          Iniciar sesión
+        </CardTitle>
         <CardDescription>
           Ingresa tus datos para acceder a tus suscripciones.
         </CardDescription>
@@ -33,6 +36,7 @@ export function LoginForm() {
             <Input
               id="email"
               type="email"
+              autoComplete="email"
               placeholder="tu@correo.com"
               required
               value={email}
@@ -41,15 +45,19 @@ export function LoginForm() {
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="password">Contraseña</Label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
+              autoComplete="current-password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
         </CardContent>
         <CardFooter className="mt-6 flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={isLoading}>

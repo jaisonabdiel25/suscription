@@ -48,6 +48,14 @@ export function ProfileForm({ profile, onCancel, onSuccess }: ProfileFormProps) 
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  const validateName = () => {
+    const parsed = profileSchema.safeParse({ name, currency });
+    const message = parsed.success
+      ? undefined
+      : parsed.error.issues.find((issue) => issue.path[0] === "name")?.message;
+    setErrors((prev) => ({ ...prev, name: message }));
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -80,7 +88,9 @@ export function ProfileForm({ profile, onCancel, onSuccess }: ProfileFormProps) 
   return (
     <Card className="mx-auto w-full max-w-lg">
       <CardHeader>
-        <CardTitle>Editar perfil</CardTitle>
+        <CardTitle role="heading" aria-level={1}>
+          Editar perfil
+        </CardTitle>
         <CardDescription>
           Gestiona tus datos y la moneda con la que ves tus gastos.
         </CardDescription>
@@ -89,18 +99,30 @@ export function ProfileForm({ profile, onCancel, onSuccess }: ProfileFormProps) 
       <form onSubmit={handleSubmit}>
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="name">Nombre</Label>
+            <Label htmlFor="name">
+              Nombre
+              <span aria-hidden="true" className="text-destructive">
+                {" "}
+                *
+              </span>
+            </Label>
             <Input
               id="name"
+              autoComplete="name"
+              required
               value={name}
               onChange={(e) => {
                 setName(e.target.value);
                 setErrors((prev) => ({ ...prev, name: undefined }));
               }}
+              onBlur={validateName}
               aria-invalid={Boolean(errors.name)}
+              aria-describedby={errors.name ? "name-error" : undefined}
             />
             {errors.name && (
-              <p className="text-xs text-destructive">{errors.name}</p>
+              <p id="name-error" role="alert" className="text-xs text-destructive">
+                {errors.name}
+              </p>
             )}
           </div>
 

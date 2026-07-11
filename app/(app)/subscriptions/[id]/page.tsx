@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-import { requireSession } from "@/lib/session";
+import { getSession, requireSession } from "@/lib/session";
 import { toSubscriptionDTO } from "@/lib/subscriptions/serializers";
 import { SubscriptionCard } from "@/components/subscriptions/subscription-card";
 import { SubscriptionForm } from "@/components/subscriptions/subscription-form";
@@ -12,7 +12,16 @@ export async function generateMetadata({
   params,
 }: PageParams): Promise<Metadata> {
   const { id } = await params;
-  return { title: id === "new" ? "Nueva suscripción" : "Suscripción" };
+  if (id === "new") return { title: "Nueva suscripción" };
+
+  const session = await getSession();
+  if (!session) return { title: "Suscripción" };
+
+  const subscription = await prisma.subscription.findFirst({
+    where: { id, userId: session.user.id },
+    select: { name: true },
+  });
+  return { title: subscription?.name ?? "Suscripción" };
 }
 
 export default async function SubscriptionPage({ params }: PageParams) {

@@ -8,7 +8,7 @@ export default async function LandingPage() {
   const isAuthenticated = Boolean(session);
 
   return (
-    <div className="flex min-h-screen flex-col">
+    <div className="flex min-h-dvh flex-col">
       <Navbar isAuthenticated={isAuthenticated} />
       <main className="flex-1">
         <Hero isAuthenticated={isAuthenticated} />

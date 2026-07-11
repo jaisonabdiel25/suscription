@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PasswordInput } from "@/components/ui/password-input";
 import { useAuthForm } from "@/hooks/use-auth-form";
 
 export function SignupForm() {
@@ -30,7 +31,9 @@ export function SignupForm() {
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <CardTitle>Crear cuenta</CardTitle>
+        <CardTitle role="heading" aria-level={1}>
+          Crear cuenta
+        </CardTitle>
         <CardDescription>
           Empieza a controlar tus suscripciones en un minuto.
         </CardDescription>
@@ -41,6 +44,7 @@ export function SignupForm() {
             <Label htmlFor="name">Nombre</Label>
             <Input
               id="name"
+              autoComplete="name"
               placeholder="Tu nombre"
               required
               value={name}
@@ -52,6 +56,7 @@ export function SignupForm() {
             <Input
               id="email"
               type="email"
+              autoComplete="email"
               placeholder="tu@correo.com"
               required
               value={email}
@@ -60,17 +65,24 @@ export function SignupForm() {
           </div>
           <div className="flex flex-col gap-2">
             <Label htmlFor="password">Contraseña</Label>
-            <Input
+            <PasswordInput
               id="password"
-              type="password"
+              autoComplete="new-password"
               minLength={8}
               required
+              aria-describedby="password-hint"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
-            <p className="text-xs text-muted-foreground">Mínimo 8 caracteres.</p>
+            <p id="password-hint" className="text-xs text-muted-foreground">
+              Mínimo 8 caracteres.
+            </p>
           </div>
-          {error && <p className="text-sm text-destructive">{error}</p>}
+          {error && (
+            <p role="alert" className="text-sm text-destructive">
+              {error}
+            </p>
+          )}
         </CardContent>
         <CardFooter className="mt-6 flex flex-col gap-3">
           <Button type="submit" className="w-full" disabled={isLoading}>

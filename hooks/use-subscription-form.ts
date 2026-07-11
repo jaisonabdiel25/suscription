@@ -80,6 +80,15 @@ export function useSubscriptionForm(options: {
     setErrors({});
   };
 
+  /** Validate a single field on blur; sets or clears only that field's error. */
+  const validateField = (field: keyof SubscriptionFormValues) => {
+    const parsed = subscriptionSchema.safeParse(values);
+    const message = parsed.success
+      ? undefined
+      : parsed.error.issues.find((issue) => issue.path[0] === field)?.message;
+    setErrors((prev) => ({ ...prev, [field]: message }));
+  };
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
@@ -102,5 +111,13 @@ export function useSubscriptionForm(options: {
     }
   };
 
-  return { values, errors, isSubmitting, setValue, reset, handleSubmit };
+  return {
+    values,
+    errors,
+    isSubmitting,
+    setValue,
+    validateField,
+    reset,
+    handleSubmit,
+  };
 }

@@ -7,7 +7,7 @@ import { Card, CardContent } from "@/components/ui/card";
 const PREVIEW_SUBSCRIPTIONS = [
   { name: "Netflix", category: "Streaming", price: "$26.900", day: 5 },
   { name: "Spotify", category: "Música", price: "$16.900", day: 12 },
-  { name: "Notion", category: "Productividad", price: "US$10", day: 20 },
+  { name: "Notion", category: "Productividad", price: "$39.900", day: 20 },
 ];
 
 export function Hero({ isAuthenticated }: { isAuthenticated: boolean }) {
@@ -45,7 +45,7 @@ export function Hero({ isAuthenticated }: { isAuthenticated: boolean }) {
         <CardContent className="flex flex-col gap-3">
           <div className="flex items-baseline justify-between">
             <p className="text-sm text-muted-foreground">Gasto mensual</p>
-            <p className="text-2xl font-semibold tabular-nums">$83.400</p>
+            <p className="text-2xl font-semibold tabular-nums">$83.700</p>
           </div>
           <div className="flex flex-col divide-y">
             {PREVIEW_SUBSCRIPTIONS.map((sub) => (

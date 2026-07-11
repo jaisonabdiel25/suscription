@@ -45,7 +45,9 @@ export function ProfileCard({ profile }: ProfileCardProps) {
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
           <div className="grid gap-1">
-            <CardTitle>Mi perfil</CardTitle>
+            <CardTitle role="heading" aria-level={1}>
+              Mi perfil
+            </CardTitle>
             <CardDescription>
               Tus datos y la moneda con la que ves tus gastos.
             </CardDescription>

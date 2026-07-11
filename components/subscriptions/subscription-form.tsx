@@ -64,9 +64,22 @@ const statusItems = SUBSCRIPTION_STATUSES.map((value) => ({
   label: STATUS_LABELS[value],
 }));
 
-function FieldError({ message }: { message?: string }) {
+function FieldError({ id, message }: { id?: string; message?: string }) {
   if (!message) return null;
-  return <p className="text-xs text-destructive">{message}</p>;
+  return (
+    <p id={id} role="alert" className="text-xs text-destructive">
+      {message}
+    </p>
+  );
+}
+
+function RequiredMark() {
+  return (
+    <span aria-hidden="true" className="text-destructive">
+      {" "}
+      *
+    </span>
+  );
 }
 
 interface SubscriptionFormProps {
@@ -109,13 +122,13 @@ export function SubscriptionForm({
     return true;
   };
 
-  const { values, errors, isSubmitting, setValue, handleSubmit } =
+  const { values, errors, isSubmitting, setValue, validateField, handleSubmit } =
     useSubscriptionForm({ initial: subscription, onSubmit });
 
   return (
     <Card className="mx-auto w-full max-w-lg">
       <CardHeader>
-        <CardTitle>
+        <CardTitle role="heading" aria-level={1}>
           {isEditing ? "Editar suscripción" : "Nueva suscripción"}
         </CardTitle>
         <CardDescription>
@@ -128,20 +141,28 @@ export function SubscriptionForm({
       <form onSubmit={handleSubmit}>
         <CardContent className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
-            <Label htmlFor="name">Nombre</Label>
+            <Label htmlFor="name">
+              Nombre
+              <RequiredMark />
+            </Label>
             <Input
               id="name"
               placeholder="Netflix, Spotify..."
               value={values.name}
               onChange={(e) => setValue("name", e.target.value)}
+              onBlur={() => validateField("name")}
               aria-invalid={Boolean(errors.name)}
+              aria-describedby={errors.name ? "name-error" : undefined}
             />
-            <FieldError message={errors.name} />
+            <FieldError id="name-error" message={errors.name} />
           </div>
 
           <div className="grid gap-4 sm:grid-cols-2">
             <div className="flex flex-col gap-2">
-              <Label>Categoría</Label>
+              <Label>
+                Categoría
+                <RequiredMark />
+              </Label>
               <Select
                 items={categoryItems}
                 value={values.category || null}
@@ -167,7 +188,10 @@ export function SubscriptionForm({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Importancia</Label>
+              <Label>
+                Importancia
+                <RequiredMark />
+              </Label>
               <Select
                 items={importanceItems}
                 value={values.importance}
@@ -190,37 +214,54 @@ export function SubscriptionForm({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="price">Precio</Label>
+              <Label htmlFor="price">
+                Precio
+                <RequiredMark />
+              </Label>
               <Input
                 id="price"
                 type="number"
+                inputMode="decimal"
                 min="0"
                 step="0.01"
                 placeholder="26900"
                 value={values.price}
                 onChange={(e) => setValue("price", e.target.value)}
+                onBlur={() => validateField("price")}
                 aria-invalid={Boolean(errors.price)}
+                aria-describedby={errors.price ? "price-error" : undefined}
               />
-              <FieldError message={errors.price} />
+              <FieldError id="price-error" message={errors.price} />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="paymentDay">Día de pago (1-31)</Label>
+              <Label htmlFor="paymentDay">
+                Día de pago (1-31)
+                <RequiredMark />
+              </Label>
               <Input
                 id="paymentDay"
                 type="number"
+                inputMode="numeric"
                 min="1"
                 max="31"
                 placeholder="5"
                 value={values.paymentDay}
                 onChange={(e) => setValue("paymentDay", e.target.value)}
+                onBlur={() => validateField("paymentDay")}
                 aria-invalid={Boolean(errors.paymentDay)}
+                aria-describedby={
+                  errors.paymentDay ? "paymentDay-error" : undefined
+                }
               />
-              <FieldError message={errors.paymentDay} />
+              <FieldError id="paymentDay-error" message={errors.paymentDay} />
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Ciclo de facturación</Label>
+              <Label>
+                Ciclo de facturación
+                <RequiredMark />
+              </Label>
               <Select
                 items={billingCycleItems}
                 value={values.billingCycle}
@@ -273,12 +314,15 @@ export function SubscriptionForm({
             <Input
               id="url"
               type="url"
+              inputMode="url"
               placeholder="https://netflix.com"
               value={values.url}
               onChange={(e) => setValue("url", e.target.value)}
+              onBlur={() => validateField("url")}
               aria-invalid={Boolean(errors.url)}
+              aria-describedby={errors.url ? "url-error" : undefined}
             />
-            <FieldError message={errors.url} />
+            <FieldError id="url-error" message={errors.url} />
           </div>
 
           <div className="flex flex-col gap-2">
@@ -289,9 +333,11 @@ export function SubscriptionForm({
               rows={2}
               value={values.notes}
               onChange={(e) => setValue("notes", e.target.value)}
+              onBlur={() => validateField("notes")}
               aria-invalid={Boolean(errors.notes)}
+              aria-describedby={errors.notes ? "notes-error" : undefined}
             />
-            <FieldError message={errors.notes} />
+            <FieldError id="notes-error" message={errors.notes} />
           </div>
         </CardContent>
 

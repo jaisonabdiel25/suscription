@@ -59,7 +59,11 @@ export function SubscriptionCard({
     <Card className="mx-auto w-full max-w-lg">
       <CardHeader>
         <div className="flex items-start justify-between gap-3">
-          <CardTitle className="flex items-center gap-2">
+          <CardTitle
+            role="heading"
+            aria-level={1}
+            className="flex items-center gap-2"
+          >
             {subscription.name}
             {isPaused && <Badge variant="outline">Pausada</Badge>}
           </CardTitle>
