@@ -2,16 +2,19 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import type { Currency } from "@/lib/generated/prisma/enums";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
 import { SubscriptionItem } from "./subscription-item";
 
 interface SubscriptionListProps {
   subscriptions: SubscriptionDTO[];
+  currency: Currency;
   onDelete: (subscription: SubscriptionDTO) => Promise<boolean>;
 }
 
 export function SubscriptionList({
   subscriptions,
+  currency,
   onDelete,
 }: SubscriptionListProps) {
   if (subscriptions.length === 0) {
@@ -38,6 +41,7 @@ export function SubscriptionList({
         <SubscriptionItem
           key={subscription.id}
           subscription={subscription}
+          currency={currency}
           onDelete={onDelete}
         />
       ))}

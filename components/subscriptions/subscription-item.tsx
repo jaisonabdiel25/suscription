@@ -12,6 +12,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import type { Currency } from "@/lib/generated/prisma/enums";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
 import {
   BILLING_CYCLE_LABELS,
@@ -23,11 +24,13 @@ import { cn } from "@/lib/utils";
 
 interface SubscriptionItemProps {
   subscription: SubscriptionDTO;
+  currency: Currency;
   onDelete: (subscription: SubscriptionDTO) => Promise<boolean>;
 }
 
 export function SubscriptionItem({
   subscription,
+  currency,
   onDelete,
 }: SubscriptionItemProps) {
   const isPaused = subscription.status === "PAUSED";
@@ -88,7 +91,7 @@ export function SubscriptionItem({
         <div className="flex shrink-0 items-center gap-1">
           <div className="text-right">
             <p className="font-semibold tabular-nums">
-              {formatPrice(subscription.price, subscription.currency)}
+              {formatPrice(subscription.price, currency)}
             </p>
             <p className="text-xs text-muted-foreground">
               {BILLING_CYCLE_LABELS[subscription.billingCycle].toLowerCase()}

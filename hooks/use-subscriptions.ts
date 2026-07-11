@@ -8,7 +8,6 @@ import {
   daysUntilNextPayment,
   monthlyEquivalent,
 } from "@/lib/subscriptions/utils";
-import type { Currency } from "@/lib/generated/prisma/enums";
 
 export interface UpcomingPayment {
   subscription: SubscriptionDTO;
@@ -18,8 +17,8 @@ export interface UpcomingPayment {
 export interface SubscriptionsSummary {
   activeCount: number;
   pausedCount: number;
-  /** Monthly spend per currency (annual prices divided by 12), active subs only. */
-  monthlyTotals: Array<{ currency: Currency; total: number }>;
+  /** Total monthly spend (annual prices divided by 12), active subs only. */
+  monthlyTotal: number;
   /** Active subscriptions charged within the next 7 days, soonest first. */
   upcoming: UpcomingPayment[];
 }
@@ -41,10 +40,10 @@ export function useSubscriptions(initialSubscriptions: SubscriptionDTO[]) {
   const summary = useMemo<SubscriptionsSummary>(() => {
     const active = subscriptions.filter((sub) => sub.status === "ACTIVE");
 
-    const totals = new Map<Currency, number>();
-    for (const sub of active) {
-      totals.set(sub.currency, (totals.get(sub.currency) ?? 0) + monthlyEquivalent(sub));
-    }
+    const monthlyTotal = active.reduce(
+      (sum, sub) => sum + monthlyEquivalent(sub),
+      0
+    );
 
     const upcoming = active
       .map((sub) => ({
@@ -57,10 +56,7 @@ export function useSubscriptions(initialSubscriptions: SubscriptionDTO[]) {
     return {
       activeCount: active.length,
       pausedCount: subscriptions.length - active.length,
-      monthlyTotals: [...totals.entries()].map(([currency, total]) => ({
-        currency,
-        total,
-      })),
+      monthlyTotal,
       upcoming,
     };
   }, [subscriptions]);

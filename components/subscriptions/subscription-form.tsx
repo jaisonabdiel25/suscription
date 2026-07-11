@@ -1,9 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
@@ -30,7 +29,6 @@ import {
 import type {
   BillingCycle,
   Category,
-  Currency,
   Importance,
   SubscriptionStatus,
 } from "@/lib/generated/prisma/enums";
@@ -38,14 +36,12 @@ import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
 import {
   BILLING_CYCLE_LABELS,
   CATEGORY_LABELS,
-  CURRENCY_LABELS,
   IMPORTANCE_LABELS,
   STATUS_LABELS,
 } from "@/lib/subscriptions/utils";
 import {
   BILLING_CYCLES,
   CATEGORIES,
-  CURRENCIES,
   IMPORTANCES,
   SUBSCRIPTION_STATUSES,
   type SubscriptionInput,
@@ -58,10 +54,6 @@ const categoryItems = CATEGORIES.map((value) => ({
 const importanceItems = IMPORTANCES.map((value) => ({
   value,
   label: IMPORTANCE_LABELS[value],
-}));
-const currencyItems = CURRENCIES.map((value) => ({
-  value,
-  label: CURRENCY_LABELS[value],
 }));
 const billingCycleItems = BILLING_CYCLES.map((value) => ({
   value,
@@ -80,11 +72,21 @@ function FieldError({ message }: { message?: string }) {
 interface SubscriptionFormProps {
   /** Subscription being edited, or null to create a new one. */
   subscription: SubscriptionDTO | null;
+  /** Called on Cancel. Defaults to navigating back to the dashboard. */
+  onCancel?: () => void;
+  /** Called after a successful save. Defaults to navigating to the dashboard. */
+  onSuccess?: () => void;
 }
 
-export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
+export function SubscriptionForm({
+  subscription,
+  onCancel,
+  onSuccess,
+}: SubscriptionFormProps) {
   const router = useRouter();
   const isEditing = subscription !== null;
+
+  const handleCancel = onCancel ?? (() => router.push("/dashboard"));
 
   const onSubmit = async (input: SubscriptionInput): Promise<boolean> => {
     const result = isEditing
@@ -97,8 +99,13 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
     }
 
     toast.success(isEditing ? "Suscripción actualizada" : "Suscripción creada");
-    router.push("/dashboard");
-    router.refresh();
+    if (onSuccess) {
+      router.refresh();
+      onSuccess();
+    } else {
+      router.push("/dashboard");
+      router.refresh();
+    }
     return true;
   };
 
@@ -198,27 +205,6 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label>Moneda</Label>
-              <Select
-                items={currencyItems}
-                value={values.currency}
-                onValueChange={(value) => setValue("currency", value as Currency)}
-              >
-                <SelectTrigger className="w-full">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {currencyItems.map((item) => (
-                    <SelectItem key={item.value} value={item.value}>
-                      {item.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FieldError message={errors.currency} />
-            </div>
-
-            <div className="flex flex-col gap-2">
               <Label htmlFor="paymentDay">Día de pago (1-31)</Label>
               <Input
                 id="paymentDay"
@@ -310,13 +296,14 @@ export function SubscriptionForm({ subscription }: SubscriptionFormProps) {
         </CardContent>
 
         <CardFooter className="mt-6 flex justify-end gap-2">
-          <Link
-            href="/dashboard"
-            className={buttonVariants({ variant: "outline" })}
-            aria-disabled={isSubmitting}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleCancel}
+            disabled={isSubmitting}
           >
             Cancelar
-          </Link>
+          </Button>
           <Button type="submit" disabled={isSubmitting}>
             {isSubmitting
               ? "Guardando..."

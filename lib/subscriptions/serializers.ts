@@ -2,7 +2,6 @@ import type { Subscription } from "@/lib/generated/prisma/client";
 import type {
   BillingCycle,
   Category,
-  Currency,
   Importance,
   SubscriptionStatus,
 } from "@/lib/generated/prisma/enums";
@@ -16,7 +15,6 @@ export type SubscriptionDTO = {
   paymentDay: number;
   importance: Importance;
   price: number;
-  currency: Currency;
   billingCycle: BillingCycle;
   status: SubscriptionStatus;
   notes: string | null;
@@ -31,7 +29,6 @@ export function toSubscriptionDTO(subscription: Subscription): SubscriptionDTO {
     paymentDay: subscription.paymentDay,
     importance: subscription.importance,
     price: Number(subscription.price),
-    currency: subscription.currency,
     billingCycle: subscription.billingCycle,
     status: subscription.status,
     notes: subscription.notes,

@@ -11,14 +11,21 @@ export const metadata: Metadata = {
 export default async function DashboardPage() {
   const session = await requireSession();
 
-  const subscriptions = await prisma.subscription.findMany({
-    where: { userId: session.user.id },
-    orderBy: { createdAt: "desc" },
-  });
+  const [user, subscriptions] = await Promise.all([
+    prisma.user.findUniqueOrThrow({
+      where: { id: session.user.id },
+      select: { currency: true },
+    }),
+    prisma.subscription.findMany({
+      where: { userId: session.user.id },
+      orderBy: { createdAt: "desc" },
+    }),
+  ]);
 
   return (
     <SubscriptionsView
       initialSubscriptions={subscriptions.map(toSubscriptionDTO)}
+      currency={user.currency}
     />
   );
 }

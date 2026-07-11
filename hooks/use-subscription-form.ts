@@ -4,7 +4,6 @@ import { useState } from "react";
 import type {
   BillingCycle,
   Category,
-  Currency,
   Importance,
   SubscriptionStatus,
 } from "@/lib/generated/prisma/enums";
@@ -20,7 +19,6 @@ export interface SubscriptionFormValues {
   paymentDay: string;
   importance: Importance;
   price: string;
-  currency: Currency;
   billingCycle: BillingCycle;
   status: SubscriptionStatus;
   notes: string;
@@ -33,7 +31,6 @@ const EMPTY_VALUES: SubscriptionFormValues = {
   paymentDay: "",
   importance: "MEDIA",
   price: "",
-  currency: "COP",
   billingCycle: "MONTHLY",
   status: "ACTIVE",
   notes: "",
@@ -47,7 +44,6 @@ function toFormValues(subscription: SubscriptionDTO): SubscriptionFormValues {
     paymentDay: String(subscription.paymentDay),
     importance: subscription.importance,
     price: String(subscription.price),
-    currency: subscription.currency,
     billingCycle: subscription.billingCycle,
     status: subscription.status,
     notes: subscription.notes ?? "",

@@ -8,7 +8,7 @@ export default async function AppLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <Header userEmail={session.user.email} />
+      <Header userName={session.user.name} />
       <main className="mx-auto w-full max-w-4xl flex-1 px-4 py-8">
         {children}
       </main>

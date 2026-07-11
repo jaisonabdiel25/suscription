@@ -18,6 +18,7 @@ model User {
   email         String
   emailVerified Boolean   @default(false)
   image         String?
+  currency      Currency  @default(COP)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
@@ -115,7 +116,6 @@ model Subscription {
   paymentDay   Int
   importance   Importance         @default(MEDIA)
   price        Decimal            @db.Decimal(12, 2)
-  currency     Currency           @default(COP)
   billingCycle BillingCycle       @default(MONTHLY)
   status       SubscriptionStatus @default(ACTIVE)
   notes        String?

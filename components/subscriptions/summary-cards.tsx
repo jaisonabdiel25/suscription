@@ -2,15 +2,17 @@
 
 import { Card, CardContent } from "@/components/ui/card";
 import type { SubscriptionsSummary } from "@/hooks/use-subscriptions";
+import type { Currency } from "@/lib/generated/prisma/enums";
 import { formatPrice } from "@/lib/subscriptions/utils";
 
-export function SummaryCards({ summary }: { summary: SubscriptionsSummary }) {
-  const monthlyLabel =
-    summary.monthlyTotals.length > 0
-      ? summary.monthlyTotals
-          .map(({ currency, total }) => formatPrice(total, currency))
-          .join(" + ")
-      : formatPrice(0, "COP");
+export function SummaryCards({
+  summary,
+  currency,
+}: {
+  summary: SubscriptionsSummary;
+  currency: Currency;
+}) {
+  const monthlyLabel = formatPrice(summary.monthlyTotal, currency);
 
   const nextPayment = summary.upcoming[0];
 

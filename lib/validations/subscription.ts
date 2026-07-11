@@ -16,8 +16,6 @@ export const BILLING_CYCLES = ["MONTHLY", "ANNUAL"] as const;
 
 export const SUBSCRIPTION_STATUSES = ["ACTIVE", "PAUSED"] as const;
 
-export const CURRENCIES = ["COP", "USD", "EUR"] as const;
-
 export const subscriptionSchema = z.object({
   name: z
     .string()
@@ -34,7 +32,6 @@ export const subscriptionSchema = z.object({
   price: z.coerce
     .number({ message: "El precio es obligatorio" })
     .positive("El precio debe ser mayor que 0"),
-  currency: z.enum(CURRENCIES, { message: "Selecciona la moneda" }),
   billingCycle: z.enum(BILLING_CYCLES, { message: "Selecciona el ciclo" }),
   status: z.enum(SUBSCRIPTION_STATUSES, { message: "Selecciona el estado" }),
   notes: z

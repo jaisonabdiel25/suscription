@@ -2,7 +2,7 @@ import { NextResponse, type NextRequest } from "next/server";
 import { getSessionCookie } from "better-auth/cookies";
 
 const AUTH_PAGES = ["/login", "/signup"];
-const PROTECTED_PREFIXES = ["/dashboard", "/subscriptions"];
+const PROTECTED_PREFIXES = ["/dashboard", "/subscriptions", "/profile"];
 
 export function proxy(request: NextRequest) {
   const sessionCookie = getSessionCookie(request);
