@@ -19,6 +19,7 @@ import {
   CATEGORY_LABELS,
   IMPORTANCE_LABELS,
   formatPrice,
+  paymentScheduleLabel,
 } from "@/lib/subscriptions/utils";
 import { cn } from "@/lib/utils";
 
@@ -78,7 +79,7 @@ export function SubscriptionItem({
             </Badge>
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <CalendarDays className="size-3.5" />
-              Se paga el día {subscription.paymentDay}
+              {paymentScheduleLabel(subscription)}
             </span>
           </div>
           {subscription.notes && (

@@ -37,6 +37,7 @@ import {
   BILLING_CYCLE_LABELS,
   CATEGORY_LABELS,
   IMPORTANCE_LABELS,
+  MONTH_NAMES,
   STATUS_LABELS,
 } from "@/lib/subscriptions/utils";
 import {
@@ -62,6 +63,10 @@ const billingCycleItems = BILLING_CYCLES.map((value) => ({
 const statusItems = SUBSCRIPTION_STATUSES.map((value) => ({
   value,
   label: STATUS_LABELS[value],
+}));
+const monthItems = MONTH_NAMES.map((label, index) => ({
+  value: String(index + 1),
+  label: label.charAt(0).toUpperCase() + label.slice(1),
 }));
 
 function FieldError({ id, message }: { id?: string; message?: string }) {
@@ -122,8 +127,15 @@ export function SubscriptionForm({
     return true;
   };
 
-  const { values, errors, isSubmitting, setValue, validateField, handleSubmit } =
-    useSubscriptionForm({ initial: subscription, onSubmit });
+  const {
+    values,
+    errors,
+    isSubmitting,
+    isValid,
+    setValue,
+    validateField,
+    handleSubmit,
+  } = useSubscriptionForm({ initial: subscription, onSubmit });
 
   return (
     <Card className="mx-auto w-full max-w-lg">
@@ -235,29 +247,6 @@ export function SubscriptionForm({
             </div>
 
             <div className="flex flex-col gap-2">
-              <Label htmlFor="paymentDay">
-                Día de pago (1-31)
-                <RequiredMark />
-              </Label>
-              <Input
-                id="paymentDay"
-                type="number"
-                inputMode="numeric"
-                min="1"
-                max="31"
-                placeholder="5"
-                value={values.paymentDay}
-                onChange={(e) => setValue("paymentDay", e.target.value)}
-                onBlur={() => validateField("paymentDay")}
-                aria-invalid={Boolean(errors.paymentDay)}
-                aria-describedby={
-                  errors.paymentDay ? "paymentDay-error" : undefined
-                }
-              />
-              <FieldError id="paymentDay-error" message={errors.paymentDay} />
-            </div>
-
-            <div className="flex flex-col gap-2">
               <Label>
                 Ciclo de facturación
                 <RequiredMark />
@@ -282,6 +271,94 @@ export function SubscriptionForm({
               </Select>
               <FieldError message={errors.billingCycle} />
             </div>
+
+            <div className="flex flex-col gap-2">
+              <Label htmlFor="paymentDay">
+                {values.billingCycle === "BIWEEKLY"
+                  ? "Primer día de pago (1-31)"
+                  : "Día de pago (1-31)"}
+                <RequiredMark />
+              </Label>
+              <Input
+                id="paymentDay"
+                type="number"
+                inputMode="numeric"
+                min="1"
+                max="31"
+                placeholder="5"
+                value={values.paymentDay}
+                onChange={(e) => setValue("paymentDay", e.target.value)}
+                onBlur={() => validateField("paymentDay")}
+                aria-invalid={Boolean(errors.paymentDay)}
+                aria-describedby={
+                  errors.paymentDay ? "paymentDay-error" : undefined
+                }
+              />
+              <FieldError id="paymentDay-error" message={errors.paymentDay} />
+            </div>
+
+            {values.billingCycle === "BIWEEKLY" && (
+              <div className="flex flex-col gap-2">
+                <Label htmlFor="secondPaymentDay">
+                  Segundo día de pago (1-31)
+                  <RequiredMark />
+                </Label>
+                <Input
+                  id="secondPaymentDay"
+                  type="number"
+                  inputMode="numeric"
+                  min="1"
+                  max="31"
+                  placeholder="20"
+                  value={values.secondPaymentDay}
+                  onChange={(e) =>
+                    setValue("secondPaymentDay", e.target.value)
+                  }
+                  onBlur={() => validateField("secondPaymentDay")}
+                  aria-invalid={Boolean(errors.secondPaymentDay)}
+                  aria-describedby={
+                    errors.secondPaymentDay
+                      ? "secondPaymentDay-error"
+                      : undefined
+                  }
+                />
+                <FieldError
+                  id="secondPaymentDay-error"
+                  message={errors.secondPaymentDay}
+                />
+              </div>
+            )}
+
+            {values.billingCycle === "ANNUAL" && (
+              <div className="flex flex-col gap-2">
+                <Label>
+                  Mes de pago
+                  <RequiredMark />
+                </Label>
+                <Select
+                  items={monthItems}
+                  value={values.paymentMonth || null}
+                  onValueChange={(value) =>
+                    setValue("paymentMonth", value ?? "")
+                  }
+                >
+                  <SelectTrigger
+                    className="w-full"
+                    aria-invalid={Boolean(errors.paymentMonth)}
+                  >
+                    <SelectValue placeholder="Selecciona" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {monthItems.map((item) => (
+                      <SelectItem key={item.value} value={item.value}>
+                        {item.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+                <FieldError message={errors.paymentMonth} />
+              </div>
+            )}
           </div>
 
           {isEditing && (
@@ -350,7 +427,7 @@ export function SubscriptionForm({
           >
             Cancelar
           </Button>
-          <Button type="submit" disabled={isSubmitting}>
+          <Button type="submit" disabled={isSubmitting || !isValid}>
             {isSubmitting
               ? "Guardando..."
               : isEditing

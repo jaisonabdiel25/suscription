@@ -17,6 +17,8 @@ export interface SubscriptionFormValues {
   name: string;
   category: Category | "";
   paymentDay: string;
+  secondPaymentDay: string;
+  paymentMonth: string;
   importance: Importance;
   price: string;
   billingCycle: BillingCycle;
@@ -29,6 +31,8 @@ const EMPTY_VALUES: SubscriptionFormValues = {
   name: "",
   category: "",
   paymentDay: "",
+  secondPaymentDay: "",
+  paymentMonth: "",
   importance: "MEDIA",
   price: "",
   billingCycle: "MONTHLY",
@@ -42,6 +46,12 @@ function toFormValues(subscription: SubscriptionDTO): SubscriptionFormValues {
     name: subscription.name,
     category: subscription.category,
     paymentDay: String(subscription.paymentDay),
+    secondPaymentDay:
+      subscription.secondPaymentDay != null
+        ? String(subscription.secondPaymentDay)
+        : "",
+    paymentMonth:
+      subscription.paymentMonth != null ? String(subscription.paymentMonth) : "",
     importance: subscription.importance,
     price: String(subscription.price),
     billingCycle: subscription.billingCycle,
@@ -66,6 +76,10 @@ export function useSubscriptionForm(options: {
   );
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Whether every required field passes validation, so the submit button can
+  // stay disabled until the form is complete.
+  const isValid = subscriptionSchema.safeParse(values).success;
 
   const setValue = <K extends keyof SubscriptionFormValues>(
     field: K,
@@ -115,6 +129,7 @@ export function useSubscriptionForm(options: {
     values,
     errors,
     isSubmitting,
+    isValid,
     setValue,
     validateField,
     reset,

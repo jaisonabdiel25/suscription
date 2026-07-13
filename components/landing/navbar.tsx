@@ -9,7 +9,7 @@ export function Navbar({ isAuthenticated }: { isAuthenticated: boolean }) {
       <nav className="mx-auto flex h-14 w-full max-w-5xl items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 font-semibold">
           <Wallet className="size-5" />
-          Suscripciones
+          Subly
         </Link>
         <div className="flex items-center gap-2">
           <ThemeToggle />

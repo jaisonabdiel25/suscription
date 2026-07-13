@@ -13,6 +13,8 @@ export type SubscriptionDTO = {
   name: string;
   category: Category;
   paymentDay: number;
+  secondPaymentDay: number | null;
+  paymentMonth: number | null;
   importance: Importance;
   price: number;
   billingCycle: BillingCycle;
@@ -27,6 +29,8 @@ export function toSubscriptionDTO(subscription: Subscription): SubscriptionDTO {
     name: subscription.name,
     category: subscription.category,
     paymentDay: subscription.paymentDay,
+    secondPaymentDay: subscription.secondPaymentDay,
+    paymentMonth: subscription.paymentMonth,
     importance: subscription.importance,
     price: Number(subscription.price),
     billingCycle: subscription.billingCycle,

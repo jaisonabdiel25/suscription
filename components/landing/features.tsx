@@ -29,7 +29,7 @@ const FEATURES = [
 
 export function Features() {
   return (
-    <section className="mx-auto w-full max-w-5xl px-4 pb-24">
+    <section className="relative z-10 mx-auto w-full max-w-5xl px-4 pt-8 pb-24 md:pt-12">
       <div className="grid gap-4 md:grid-cols-3">
         {FEATURES.map((feature) => (
           <Card key={feature.title}>

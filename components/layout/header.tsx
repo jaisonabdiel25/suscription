@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { LogOut, User, Wallet } from "lucide-react";
+import { ChartColumn, LogOut, User, Wallet } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -24,9 +24,16 @@ export function Header({ userName }: { userName: string }) {
       <div className="mx-auto flex h-14 w-full max-w-4xl items-center justify-between px-4">
         <Link href="/dashboard" className="flex items-center gap-2 font-semibold">
           <Wallet className="size-5" />
-          Suscripciones
+          Subly
         </Link>
         <div className="flex items-center gap-2 sm:gap-3">
+          <Link
+            href="/statistics"
+            className={buttonVariants({ variant: "ghost", size: "sm" })}
+          >
+            <ChartColumn data-icon="inline-start" />
+            <span className="hidden sm:inline">Estadísticas</span>
+          </Link>
           <Link
             href="/profile"
             className={buttonVariants({ variant: "ghost", size: "sm" })}

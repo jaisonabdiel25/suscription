@@ -20,6 +20,7 @@ import {
   IMPORTANCE_LABELS,
   STATUS_LABELS,
   formatPrice,
+  paymentDateLabel,
 } from "@/lib/subscriptions/utils";
 import { SubscriptionForm } from "./subscription-form";
 
@@ -87,7 +88,7 @@ export function SubscriptionCard({
         <Field label="Ciclo de facturación">
           {BILLING_CYCLE_LABELS[subscription.billingCycle]}
         </Field>
-        <Field label="Día de pago">Día {subscription.paymentDay}</Field>
+        <Field label="Fecha de pago">{paymentDateLabel(subscription)}</Field>
         <Field label="Estado">{STATUS_LABELS[subscription.status]}</Field>
         {subscription.url && (
           <Field label="URL del servicio">

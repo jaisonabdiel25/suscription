@@ -16,8 +16,8 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: {
-    default: "Suscripciones — Controla tus gastos recurrentes",
-    template: "%s · Suscripciones",
+    default: "Subly — Controla tus gastos recurrentes",
+    template: "%s · Subly",
   },
   description:
     "Registra, organiza y controla todas tus suscripciones en un solo lugar.",

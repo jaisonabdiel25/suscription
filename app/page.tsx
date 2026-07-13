@@ -16,7 +16,7 @@ export default async function LandingPage() {
       </main>
       <footer className="border-t py-6">
         <p className="mx-auto w-full max-w-5xl px-4 text-sm text-muted-foreground">
-          Suscripciones — controla tus gastos recurrentes.
+          Subly — controla tus gastos recurrentes.
         </p>
       </footer>
     </div>
