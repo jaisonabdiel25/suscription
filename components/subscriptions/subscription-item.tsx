@@ -12,20 +12,13 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import type { Currency } from "@/lib/generated/prisma/enums";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
-import {
-  BILLING_CYCLE_LABELS,
-  CATEGORY_LABELS,
-  IMPORTANCE_LABELS,
-  formatPrice,
-  paymentScheduleLabel,
-} from "@/lib/subscriptions/utils";
+import { formatPrice, paymentScheduleLabel } from "@/lib/subscriptions/utils";
 import { cn } from "@/lib/utils";
 
 interface SubscriptionItemProps {
   subscription: SubscriptionDTO;
-  currency: Currency;
+  currency: string;
   onDelete: (subscription: SubscriptionDTO) => Promise<boolean>;
 }
 
@@ -69,13 +62,11 @@ export function SubscriptionItem({
             {isPaused && <Badge variant="outline">Pausada</Badge>}
           </div>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="secondary">
-              {CATEGORY_LABELS[subscription.category]}
-            </Badge>
+            <Badge variant="secondary">{subscription.categoryLabel}</Badge>
             <Badge
               variant={subscription.importance === "ALTA" ? "default" : "outline"}
             >
-              Importancia {IMPORTANCE_LABELS[subscription.importance].toLowerCase()}
+              Importancia {subscription.importanceLabel.toLowerCase()}
             </Badge>
             <span className="flex items-center gap-1 text-xs text-muted-foreground">
               <CalendarDays className="size-3.5" />
@@ -95,7 +86,7 @@ export function SubscriptionItem({
               {formatPrice(subscription.price, currency)}
             </p>
             <p className="text-xs text-muted-foreground">
-              {BILLING_CYCLE_LABELS[subscription.billingCycle].toLowerCase()}
+              {subscription.billingCycleLabel.toLowerCase()}
             </p>
           </div>
           <DropdownMenu>

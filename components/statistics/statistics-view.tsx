@@ -30,32 +30,16 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { useSubscriptions } from "@/hooks/use-subscriptions";
-import type {
-  BillingCycle,
-  Category,
-  Currency,
-} from "@/lib/generated/prisma/enums";
+import { CATALOG_NAMES } from "@/lib/catalog/seed-data";
+import { catalogOptions, type CatalogData } from "@/lib/catalog/serializers";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
-import {
-  BILLING_CYCLE_LABELS,
-  CATEGORY_LABELS,
-  formatPrice,
-  monthlyEquivalent,
-} from "@/lib/subscriptions/utils";
-import { BILLING_CYCLES, CATEGORIES } from "@/lib/validations/subscription";
+import { formatPrice, monthlyEquivalent } from "@/lib/subscriptions/utils";
 
-// Color follows the entity, never its rank: each category/cycle keeps the same
-// hue regardless of how many appear. Slots come from the validated --chart-N
-// palette in globals.css (7 categorical hues).
-const CATEGORY_COLOR = Object.fromEntries(
-  CATEGORIES.map((category, index) => [category, `var(--chart-${index + 1})`])
-) as Record<Category, string>;
-
-const CYCLE_COLOR: Record<BillingCycle, string> = {
-  MONTHLY: "var(--chart-1)",
-  BIWEEKLY: "var(--chart-2)",
-  ANNUAL: "var(--chart-3)",
-};
+// Cada entidad conserva su color por su posición (sortOrder) dentro de su
+// catálogo, tomado de la paleta --chart-N validada en globals.css (7 tonos).
+const CHART_PALETTE_SIZE = 7;
+const colorAt = (index: number) =>
+  `var(--chart-${(index % CHART_PALETTE_SIZE) + 1})`;
 
 const compactNumber = new Intl.NumberFormat("es-CO", { notation: "compact" });
 
@@ -81,11 +65,15 @@ function KpiCard({ label, value, hint }: { label: string; value: string; hint: s
 export function StatisticsView({
   subscriptions,
   currency,
+  catalog,
 }: {
   subscriptions: SubscriptionDTO[];
-  currency: Currency;
+  currency: string;
+  catalog: CatalogData;
 }) {
   const { summary } = useSubscriptions(subscriptions);
+  const categoryOptions = catalogOptions(catalog, CATALOG_NAMES.CATEGORY);
+  const cycleOptions = catalogOptions(catalog, CATALOG_NAMES.CICLFACT);
 
   // Short currency for on-chart labels, e.g. "$27 K" — keeps them inside marks.
   const compactPrice = (value: number) =>
@@ -103,48 +91,52 @@ export function StatisticsView({
   const { spendByCategory, countByCycle } = useMemo(() => {
     const active = subscriptions.filter((sub) => sub.status === "ACTIVE");
 
-    const spendByCategory: Datum[] = CATEGORIES.map((category) => {
-      const value = active
-        .filter((sub) => sub.category === category)
-        .reduce((sum, sub) => sum + monthlyEquivalent(sub), 0);
-      return {
-        key: category,
-        name: CATEGORY_LABELS[category],
-        value,
-        fill: CATEGORY_COLOR[category],
-      };
-    }).filter((datum) => datum.value > 0);
+    const spendByCategory: Datum[] = categoryOptions
+      .map((option, index) => {
+        const value = active
+          .filter((sub) => sub.category === option.code)
+          .reduce((sum, sub) => sum + monthlyEquivalent(sub), 0);
+        return {
+          key: option.code,
+          name: option.label,
+          value,
+          fill: colorAt(index),
+        };
+      })
+      .filter((datum) => datum.value > 0);
 
-    const countByCycle: Datum[] = BILLING_CYCLES.map((cycle) => ({
-      key: cycle,
-      name: BILLING_CYCLE_LABELS[cycle],
-      value: active.filter((sub) => sub.billingCycle === cycle).length,
-      fill: CYCLE_COLOR[cycle],
-    })).filter((datum) => datum.value > 0);
+    const countByCycle: Datum[] = cycleOptions
+      .map((option, index) => ({
+        key: option.code,
+        name: option.label,
+        value: active.filter((sub) => sub.billingCycle === option.code).length,
+        fill: colorAt(index),
+      }))
+      .filter((datum) => datum.value > 0);
 
     return { spendByCategory, countByCycle };
-  }, [subscriptions]);
+  }, [subscriptions, categoryOptions, cycleOptions]);
 
   const categoryConfig = useMemo<ChartConfig>(
     () =>
       Object.fromEntries(
-        CATEGORIES.map((category) => [
-          category,
-          { label: CATEGORY_LABELS[category], color: CATEGORY_COLOR[category] },
+        categoryOptions.map((option, index) => [
+          option.code,
+          { label: option.label, color: colorAt(index) },
         ])
       ),
-    []
+    [categoryOptions]
   );
 
   const cycleConfig = useMemo<ChartConfig>(
     () =>
       Object.fromEntries(
-        BILLING_CYCLES.map((cycle) => [
-          cycle,
-          { label: BILLING_CYCLE_LABELS[cycle], color: CYCLE_COLOR[cycle] },
+        cycleOptions.map((option, index) => [
+          option.code,
+          { label: option.label, color: colorAt(index) },
         ])
       ),
-    []
+    [cycleOptions]
   );
 
   if (subscriptions.length === 0) {

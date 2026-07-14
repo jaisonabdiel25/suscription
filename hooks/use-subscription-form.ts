@@ -1,28 +1,23 @@
 "use client";
 
 import { useState } from "react";
-import type {
-  BillingCycle,
-  Category,
-  Importance,
-  SubscriptionStatus,
-} from "@/lib/generated/prisma/enums";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
 import {
   subscriptionSchema,
   type SubscriptionInput,
 } from "@/lib/validations/subscription";
 
+// Los campos de catálogo se manejan como el código string (catalogId).
 export interface SubscriptionFormValues {
   name: string;
-  category: Category | "";
+  category: string;
   paymentDay: string;
   secondPaymentDay: string;
   paymentMonth: string;
-  importance: Importance;
+  importance: string;
   price: string;
-  billingCycle: BillingCycle;
-  status: SubscriptionStatus;
+  billingCycle: string;
+  status: string;
   notes: string;
   url: string;
 }

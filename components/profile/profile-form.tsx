@@ -22,17 +22,13 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { updateProfile } from "@/lib/actions/profile";
-import type { Currency } from "@/lib/generated/prisma/enums";
-import { CURRENCY_LABELS } from "@/lib/subscriptions/utils";
-import { CURRENCIES, profileSchema } from "@/lib/validations/profile";
-
-const currencyItems = CURRENCIES.map((value) => ({
-  value,
-  label: CURRENCY_LABELS[value],
-}));
+import { CATALOG_NAMES } from "@/lib/catalog/seed-data";
+import { catalogOptions, type CatalogData } from "@/lib/catalog/serializers";
+import { profileSchema } from "@/lib/validations/profile";
 
 interface ProfileFormProps {
-  profile: { name: string; email: string; currency: Currency };
+  profile: { name: string; email: string; currency: string };
+  catalog: CatalogData;
   /** Called on Cancel. */
   onCancel?: () => void;
   /** Called after a successful save. */
@@ -41,10 +37,18 @@ interface ProfileFormProps {
 
 type FieldErrors = { name?: string; currency?: string };
 
-export function ProfileForm({ profile, onCancel, onSuccess }: ProfileFormProps) {
+export function ProfileForm({
+  profile,
+  catalog,
+  onCancel,
+  onSuccess,
+}: ProfileFormProps) {
   const router = useRouter();
+  const currencyItems = catalogOptions(catalog, CATALOG_NAMES.CURRENCY).map(
+    (option) => ({ value: option.code, label: option.label })
+  );
   const [name, setName] = useState(profile.name);
-  const [currency, setCurrency] = useState<Currency>(profile.currency);
+  const [currency, setCurrency] = useState(profile.currency);
   const [errors, setErrors] = useState<FieldErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -139,7 +143,7 @@ export function ProfileForm({ profile, onCancel, onSuccess }: ProfileFormProps) 
             <Select
               items={currencyItems}
               value={currency}
-              onValueChange={(value) => setCurrency(value as Currency)}
+              onValueChange={(value) => setCurrency(value ?? "")}
             >
               <SelectTrigger className="w-full">
                 <SelectValue />

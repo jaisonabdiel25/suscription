@@ -1,24 +1,9 @@
 import { z } from "zod";
 
-export const CATEGORIES = [
-  "STREAMING",
-  "MUSICA",
-  "PRODUCTIVIDAD",
-  "EDUCACION",
-  "SALUD",
-  "GAMING",
-  "OTROS",
-] as const;
-
-export const IMPORTANCES = ["BAJA", "MEDIA", "ALTA"] as const;
-
-export const BILLING_CYCLES = ["MONTHLY", "BIWEEKLY", "ANNUAL"] as const;
-
-/** Recurring cycles that count towards the monthly-spend card. */
-export const RECURRING_CYCLES = ["MONTHLY", "BIWEEKLY"] as const;
-
-export const SUBSCRIPTION_STATUSES = ["ACTIVE", "PAUSED"] as const;
-
+// Los conjuntos de opciones (categoría, importancia, ciclo, estado) viven ahora
+// en la tabla `catalog`. Aquí solo se valida que haya un código; su existencia
+// contra el catálogo se verifica en el server action. Los códigos de negocio
+// (ANNUAL/BIWEEKLY) siguen comparándose por literal en el superRefine.
 export const subscriptionSchema = z
   .object({
     name: z
@@ -26,7 +11,7 @@ export const subscriptionSchema = z
       .trim()
       .min(1, "El nombre es obligatorio")
       .max(100, "Máximo 100 caracteres"),
-    category: z.enum(CATEGORIES, { message: "Selecciona una categoría" }),
+    category: z.string().min(1, "Selecciona una categoría"),
     paymentDay: z.coerce
       .number({ message: "El día de pago es obligatorio" })
       .int("Debe ser un día del mes válido")
@@ -54,12 +39,12 @@ export const subscriptionSchema = z
         .max(12, "El mes debe estar entre 1 y 12")
         .nullable()
     ),
-    importance: z.enum(IMPORTANCES, { message: "Selecciona la importancia" }),
+    importance: z.string().min(1, "Selecciona la importancia"),
     price: z.coerce
       .number({ message: "El precio es obligatorio" })
       .positive("El precio debe ser mayor que 0"),
-    billingCycle: z.enum(BILLING_CYCLES, { message: "Selecciona el ciclo" }),
-    status: z.enum(SUBSCRIPTION_STATUSES, { message: "Selecciona el estado" }),
+    billingCycle: z.string().min(1, "Selecciona el ciclo"),
+    status: z.string().min(1, "Selecciona el estado"),
     notes: z
       .string()
       .trim()

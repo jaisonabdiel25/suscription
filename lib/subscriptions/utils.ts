@@ -1,33 +1,4 @@
-import type {
-  BillingCycle,
-  Category,
-  Currency,
-  Importance,
-  SubscriptionStatus,
-} from "@/lib/generated/prisma/enums";
 import type { SubscriptionDTO } from "./serializers";
-
-export const CATEGORY_LABELS: Record<Category, string> = {
-  STREAMING: "Streaming",
-  MUSICA: "Música",
-  PRODUCTIVIDAD: "Productividad",
-  EDUCACION: "Educación",
-  SALUD: "Salud",
-  GAMING: "Gaming",
-  OTROS: "Otros",
-};
-
-export const IMPORTANCE_LABELS: Record<Importance, string> = {
-  BAJA: "Baja",
-  MEDIA: "Media",
-  ALTA: "Alta",
-};
-
-export const BILLING_CYCLE_LABELS: Record<BillingCycle, string> = {
-  MONTHLY: "Mensual",
-  BIWEEKLY: "Quincenal",
-  ANNUAL: "Anual",
-};
 
 export const MONTH_NAMES = [
   "enero",
@@ -44,18 +15,7 @@ export const MONTH_NAMES = [
   "diciembre",
 ] as const;
 
-export const STATUS_LABELS: Record<SubscriptionStatus, string> = {
-  ACTIVE: "Activa",
-  PAUSED: "Pausada",
-};
-
-export const CURRENCY_LABELS: Record<Currency, string> = {
-  COP: "COP — Peso colombiano",
-  USD: "USD — Dólar",
-  EUR: "EUR — Euro",
-};
-
-export function formatPrice(price: number, currency: Currency): string {
+export function formatPrice(price: number, currency: string): string {
   return new Intl.NumberFormat("es-CO", {
     style: "currency",
     currency,

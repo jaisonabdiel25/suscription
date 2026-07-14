@@ -18,7 +18,9 @@ model User {
   email         String
   emailVerified Boolean   @default(false)
   image         String?
-  currency      Currency  @default(COP)
+  // Código de catálogo CURRENCY (catalogId), p. ej. "COP".
+  currency      String    @default("COP")
+  isAdmin       Boolean   @default(false)
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   sessions      Session[]
@@ -77,58 +79,48 @@ model Verification {
   @@map("verification")
 }
 
-enum Category {
-  STREAMING
-  MUSICA
-  PRODUCTIVIDAD
-  EDUCACION
-  SALUD
-  GAMING
-  OTROS
-}
+/// Tabla única de catálogos. Todos los catálogos conviven aquí; `catalogName`
+/// los diferencia (CATEGORY, IMPORTANCY, CICLFACT, STATUS, CURRENCY) y `catalogId`
+/// es el código estable contra el que compara la lógica de negocio.
+model Catalog {
+  id                 String   @id @default(uuid())
+  catalogName        String
+  catalogId          String
+  catalogDescription String
+  ln                 String   @default("es")
+  sortOrder          Int      @default(0)
+  isActive           Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
 
-enum Importance {
-  BAJA
-  MEDIA
-  ALTA
-}
-
-enum BillingCycle {
-  MONTHLY
-  BIWEEKLY
-  ANNUAL
-}
-
-enum SubscriptionStatus {
-  ACTIVE
-  PAUSED
-}
-
-enum Currency {
-  COP
-  USD
-  EUR
+  @@unique([catalogName, catalogId, ln])
+  @@index([catalogName, ln])
+  @@map("catalog")
 }
 
 model Subscription {
-  id           String             @id @default(cuid())
+  id           String   @id @default(cuid())
   name            String
-  category        Category
+  // Código de catálogo CATEGORY (catalogId).
+  category        String
   paymentDay      Int
   // Second day of the month for BIWEEKLY subscriptions; null otherwise.
   secondPaymentDay Int?
   // Only used for ANNUAL subscriptions (1-12); null for monthly/biweekly.
   paymentMonth    Int?
-  importance      Importance         @default(MEDIA)
-  price        Decimal            @db.Decimal(12, 2)
-  billingCycle BillingCycle       @default(MONTHLY)
-  status       SubscriptionStatus @default(ACTIVE)
+  // Código de catálogo IMPORTANCY (catalogId).
+  importance      String   @default("MEDIA")
+  price        Decimal  @db.Decimal(12, 2)
+  // Código de catálogo CICLFACT (catalogId).
+  billingCycle String   @default("MONTHLY")
+  // Código de catálogo STATUS (catalogId).
+  status       String   @default("ACTIVE")
   notes        String?
   url          String?
   userId       String
-  user         User               @relation(fields: [userId], references: [id], onDelete: Cascade)
-  createdAt    DateTime           @default(now())
-  updatedAt    DateTime           @updatedAt
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
 
   @@index([userId])
   @@map("subscription")

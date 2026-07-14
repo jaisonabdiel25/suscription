@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { prisma } from "@/lib/prisma";
 import { requireSession } from "@/lib/session";
+import { getCatalog } from "@/lib/catalog/catalog";
 import { toSubscriptionDTO } from "@/lib/subscriptions/serializers";
 import { StatisticsView } from "@/components/statistics/statistics-view";
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 export default async function StatisticsPage() {
   const session = await requireSession();
 
-  const [user, subscriptions] = await Promise.all([
+  const [user, subscriptions, catalog] = await Promise.all([
     prisma.user.findUniqueOrThrow({
       where: { id: session.user.id },
       select: { currency: true },
@@ -20,12 +21,14 @@ export default async function StatisticsPage() {
       where: { userId: session.user.id },
       orderBy: { createdAt: "desc" },
     }),
+    getCatalog(),
   ]);
 
   return (
     <StatisticsView
-      subscriptions={subscriptions.map(toSubscriptionDTO)}
+      subscriptions={subscriptions.map((sub) => toSubscriptionDTO(sub, catalog))}
       currency={user.currency}
+      catalog={catalog}
     />
   );
 }

@@ -2,14 +2,13 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import type { Currency } from "@/lib/generated/prisma/enums";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
 import { isAnnual } from "@/lib/subscriptions/utils";
 import { SubscriptionItem } from "./subscription-item";
 
 interface SubscriptionListProps {
   subscriptions: SubscriptionDTO[];
-  currency: Currency;
+  currency: string;
   onDelete: (subscription: SubscriptionDTO) => Promise<boolean>;
 }
 
