@@ -26,44 +26,17 @@ import {
   createSubscription,
   updateSubscription,
 } from "@/lib/actions/subscriptions";
-import type {
-  BillingCycle,
-  Category,
-  Importance,
-  SubscriptionStatus,
-} from "@/lib/generated/prisma/enums";
+import { CATALOG_NAMES } from "@/lib/catalog/seed-data";
+import { catalogOptions, type CatalogData } from "@/lib/catalog/serializers";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
-import {
-  BILLING_CYCLE_LABELS,
-  CATEGORY_LABELS,
-  IMPORTANCE_LABELS,
-  MONTH_NAMES,
-  STATUS_LABELS,
-} from "@/lib/subscriptions/utils";
-import {
-  BILLING_CYCLES,
-  CATEGORIES,
-  IMPORTANCES,
-  SUBSCRIPTION_STATUSES,
-  type SubscriptionInput,
-} from "@/lib/validations/subscription";
+import { MONTH_NAMES } from "@/lib/subscriptions/utils";
+import type { SubscriptionInput } from "@/lib/validations/subscription";
 
-const categoryItems = CATEGORIES.map((value) => ({
-  value,
-  label: CATEGORY_LABELS[value],
-}));
-const importanceItems = IMPORTANCES.map((value) => ({
-  value,
-  label: IMPORTANCE_LABELS[value],
-}));
-const billingCycleItems = BILLING_CYCLES.map((value) => ({
-  value,
-  label: BILLING_CYCLE_LABELS[value],
-}));
-const statusItems = SUBSCRIPTION_STATUSES.map((value) => ({
-  value,
-  label: STATUS_LABELS[value],
-}));
+/** Opciones de catálogo → items del <Select>. */
+function toItems(options: { code: string; label: string }[]) {
+  return options.map((option) => ({ value: option.code, label: option.label }));
+}
+
 const monthItems = MONTH_NAMES.map((label, index) => ({
   value: String(index + 1),
   label: label.charAt(0).toUpperCase() + label.slice(1),
@@ -90,6 +63,8 @@ function RequiredMark() {
 interface SubscriptionFormProps {
   /** Subscription being edited, or null to create a new one. */
   subscription: SubscriptionDTO | null;
+  /** Opciones de los selects, cargadas desde la tabla de catálogos. */
+  catalog: CatalogData;
   /** Called on Cancel. Defaults to navigating back to the dashboard. */
   onCancel?: () => void;
   /** Called after a successful save. Defaults to navigating to the dashboard. */
@@ -98,11 +73,21 @@ interface SubscriptionFormProps {
 
 export function SubscriptionForm({
   subscription,
+  catalog,
   onCancel,
   onSuccess,
 }: SubscriptionFormProps) {
   const router = useRouter();
   const isEditing = subscription !== null;
+
+  const categoryItems = toItems(catalogOptions(catalog, CATALOG_NAMES.CATEGORY));
+  const importanceItems = toItems(
+    catalogOptions(catalog, CATALOG_NAMES.IMPORTANCY)
+  );
+  const billingCycleItems = toItems(
+    catalogOptions(catalog, CATALOG_NAMES.CICLFACT)
+  );
+  const statusItems = toItems(catalogOptions(catalog, CATALOG_NAMES.STATUS));
 
   const handleCancel = onCancel ?? (() => router.push("/dashboard"));
 
@@ -178,9 +163,7 @@ export function SubscriptionForm({
               <Select
                 items={categoryItems}
                 value={values.category || null}
-                onValueChange={(value) =>
-                  setValue("category", (value ?? "") as Category | "")
-                }
+                onValueChange={(value) => setValue("category", value ?? "")}
               >
                 <SelectTrigger
                   className="w-full"
@@ -207,9 +190,7 @@ export function SubscriptionForm({
               <Select
                 items={importanceItems}
                 value={values.importance}
-                onValueChange={(value) =>
-                  setValue("importance", value as Importance)
-                }
+                onValueChange={(value) => setValue("importance", value ?? "")}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />
@@ -254,9 +235,7 @@ export function SubscriptionForm({
               <Select
                 items={billingCycleItems}
                 value={values.billingCycle}
-                onValueChange={(value) =>
-                  setValue("billingCycle", value as BillingCycle)
-                }
+                onValueChange={(value) => setValue("billingCycle", value ?? "")}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />
@@ -367,9 +346,7 @@ export function SubscriptionForm({
               <Select
                 items={statusItems}
                 value={values.status}
-                onValueChange={(value) =>
-                  setValue("status", value as SubscriptionStatus)
-                }
+                onValueChange={(value) => setValue("status", value ?? "")}
               >
                 <SelectTrigger className="w-full">
                   <SelectValue />

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { getSession, requireSession } from "@/lib/session";
+import { getCatalog } from "@/lib/catalog/catalog";
 import { toSubscriptionDTO } from "@/lib/subscriptions/serializers";
 import { SubscriptionCard } from "@/components/subscriptions/subscription-card";
 import { SubscriptionForm } from "@/components/subscriptions/subscription-form";
@@ -30,10 +31,11 @@ export default async function SubscriptionPage({ params }: PageParams) {
   const isNew = id === "new";
 
   if (isNew) {
-    return <SubscriptionForm subscription={null} />;
+    const catalog = await getCatalog();
+    return <SubscriptionForm subscription={null} catalog={catalog} />;
   }
 
-  const [user, subscription] = await Promise.all([
+  const [user, subscription, catalog] = await Promise.all([
     prisma.user.findUniqueOrThrow({
       where: { id: session.user.id },
       select: { currency: true },
@@ -41,14 +43,16 @@ export default async function SubscriptionPage({ params }: PageParams) {
     prisma.subscription.findFirst({
       where: { id, userId: session.user.id },
     }),
+    getCatalog(),
   ]);
 
   if (!subscription) notFound();
 
   return (
     <SubscriptionCard
-      subscription={toSubscriptionDTO(subscription)}
+      subscription={toSubscriptionDTO(subscription, catalog)}
       currency={user.currency}
+      catalog={catalog}
     />
   );
 }

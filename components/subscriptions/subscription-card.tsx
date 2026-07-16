@@ -12,16 +12,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Currency } from "@/lib/generated/prisma/enums";
+import type { CatalogData } from "@/lib/catalog/serializers";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
-import {
-  BILLING_CYCLE_LABELS,
-  CATEGORY_LABELS,
-  IMPORTANCE_LABELS,
-  STATUS_LABELS,
-  formatPrice,
-  paymentDateLabel,
-} from "@/lib/subscriptions/utils";
+import { formatPrice, paymentDateLabel } from "@/lib/subscriptions/utils";
 import { SubscriptionForm } from "./subscription-form";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -35,12 +28,14 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 
 interface SubscriptionCardProps {
   subscription: SubscriptionDTO;
-  currency: Currency;
+  currency: string;
+  catalog: CatalogData;
 }
 
 export function SubscriptionCard({
   subscription,
   currency,
+  catalog,
 }: SubscriptionCardProps) {
   const [isEditing, setIsEditing] = useState(false);
 
@@ -48,6 +43,7 @@ export function SubscriptionCard({
     return (
       <SubscriptionForm
         subscription={subscription}
+        catalog={catalog}
         onCancel={() => setIsEditing(false)}
         onSuccess={() => setIsEditing(false)}
       />
@@ -76,20 +72,18 @@ export function SubscriptionCard({
       </CardHeader>
 
       <CardContent className="grid gap-4 sm:grid-cols-2">
-        <Field label="Categoría">{CATEGORY_LABELS[subscription.category]}</Field>
-        <Field label="Importancia">
-          {IMPORTANCE_LABELS[subscription.importance]}
-        </Field>
+        <Field label="Categoría">{subscription.categoryLabel}</Field>
+        <Field label="Importancia">{subscription.importanceLabel}</Field>
         <Field label="Precio">
           <span className="font-semibold tabular-nums">
             {formatPrice(subscription.price, currency)}
           </span>
         </Field>
         <Field label="Ciclo de facturación">
-          {BILLING_CYCLE_LABELS[subscription.billingCycle]}
+          {subscription.billingCycleLabel}
         </Field>
         <Field label="Fecha de pago">{paymentDateLabel(subscription)}</Field>
-        <Field label="Estado">{STATUS_LABELS[subscription.status]}</Field>
+        <Field label="Estado">{subscription.statusLabel}</Field>
         {subscription.url && (
           <Field label="URL del servicio">
             <a

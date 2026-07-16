@@ -10,8 +10,8 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import type { Currency } from "@/lib/generated/prisma/enums";
-import { CURRENCY_LABELS } from "@/lib/subscriptions/utils";
+import { CATALOG_NAMES } from "@/lib/catalog/seed-data";
+import { catalogLabel, type CatalogData } from "@/lib/catalog/serializers";
 import { ProfileForm } from "./profile-form";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
@@ -24,16 +24,18 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
 }
 
 interface ProfileCardProps {
-  profile: { name: string; email: string; currency: Currency };
+  profile: { name: string; email: string; currency: string };
+  catalog: CatalogData;
 }
 
-export function ProfileCard({ profile }: ProfileCardProps) {
+export function ProfileCard({ profile, catalog }: ProfileCardProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   if (isEditing) {
     return (
       <ProfileForm
         profile={profile}
+        catalog={catalog}
         onCancel={() => setIsEditing(false)}
         onSuccess={() => setIsEditing(false)}
       />
@@ -62,7 +64,9 @@ export function ProfileCard({ profile }: ProfileCardProps) {
       <CardContent className="flex flex-col gap-4">
         <Field label="Nombre">{profile.name}</Field>
         <Field label="Correo electrónico">{profile.email}</Field>
-        <Field label="Moneda">{CURRENCY_LABELS[profile.currency]}</Field>
+        <Field label="Moneda">
+          {catalogLabel(catalog, CATALOG_NAMES.CURRENCY, profile.currency)}
+        </Field>
       </CardContent>
     </Card>
   );

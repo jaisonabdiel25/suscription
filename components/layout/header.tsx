@@ -3,12 +3,18 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ChartColumn, LogOut, User, Wallet } from "lucide-react";
+import { ChartColumn, Database, LogOut, User, Wallet } from "lucide-react";
 import { authClient } from "@/lib/auth-client";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ThemeToggle } from "@/components/theme-toggle";
 
-export function Header({ userName }: { userName: string }) {
+export function Header({
+  userName,
+  isAdmin = false,
+}: {
+  userName: string;
+  isAdmin?: boolean;
+}) {
   const router = useRouter();
   const [isSigningOut, setIsSigningOut] = useState(false);
 
@@ -34,6 +40,15 @@ export function Header({ userName }: { userName: string }) {
             <ChartColumn data-icon="inline-start" />
             <span className="hidden sm:inline">Estadísticas</span>
           </Link>
+          {isAdmin && (
+            <Link
+              href="/admin/catalog"
+              className={buttonVariants({ variant: "ghost", size: "sm" })}
+            >
+              <Database data-icon="inline-start" />
+              <span className="hidden sm:inline">Catálogos</span>
+            </Link>
+          )}
           <Link
             href="/profile"
             className={buttonVariants({ variant: "ghost", size: "sm" })}

@@ -4,7 +4,6 @@ import Link from "next/link";
 import { Plus } from "lucide-react";
 import { buttonVariants } from "@/components/ui/button";
 import { useSubscriptions } from "@/hooks/use-subscriptions";
-import type { Currency } from "@/lib/generated/prisma/enums";
 import type { SubscriptionDTO } from "@/lib/subscriptions/serializers";
 import { SubscriptionList } from "./subscription-list";
 import { SummaryCards } from "./summary-cards";
@@ -14,7 +13,7 @@ export function SubscriptionsView({
   currency,
 }: {
   initialSubscriptions: SubscriptionDTO[];
-  currency: Currency;
+  currency: string;
 }) {
   const { subscriptions, remove, summary } =
     useSubscriptions(initialSubscriptions);

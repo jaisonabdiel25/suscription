@@ -3,6 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { getSession } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { getCatalog } from "@/lib/catalog/catalog";
+import { CATALOG_NAMES } from "@/lib/catalog/seed-data";
+import { isValidCode } from "@/lib/catalog/serializers";
 import { profileSchema } from "@/lib/validations/profile";
 
 export type ActionResult<T> =
@@ -11,11 +14,12 @@ export type ActionResult<T> =
 
 const UNAUTHORIZED = "Debes iniciar sesión.";
 const UNEXPECTED = "Ocurrió un error inesperado. Inténtalo de nuevo.";
+const INVALID_CURRENCY = "La moneda seleccionada no es válida.";
 
 export type ProfileDTO = {
   name: string;
   email: string;
-  currency: "COP" | "USD" | "EUR";
+  currency: string;
 };
 
 export async function updateProfile(
@@ -27,6 +31,11 @@ export async function updateProfile(
   const parsed = profileSchema.safeParse(input);
   if (!parsed.success) {
     return { ok: false, error: parsed.error.issues[0].message };
+  }
+
+  const catalog = await getCatalog();
+  if (!isValidCode(catalog, CATALOG_NAMES.CURRENCY, parsed.data.currency)) {
+    return { ok: false, error: INVALID_CURRENCY };
   }
 
   try {

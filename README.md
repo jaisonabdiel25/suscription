@@ -40,11 +40,16 @@ Gestor personal de suscripciones. Registra tus servicios recurrentes (streaming,
    DATABASE_URL="postgresql://usuario:contraseña@localhost:5432/subly"
    ```
 
-3. **Aplica las migraciones y genera el cliente de Prisma:**
+3. **Aplica las migraciones, genera el cliente y siembra los catálogos:**
 
    ```bash
    npx prisma migrate dev
+   pnpm db:seed
    ```
+
+   Los catálogos (categorías, monedas, ciclos, etc.) viven en
+   [`lib/catalog/seed-data.ts`](lib/catalog/seed-data.ts) con `id` fijos e
+   iguales en todos los ambientes; `pnpm db:seed` los inserta (idempotente).
 
 4. **Arranca el servidor de desarrollo:**
 
@@ -62,6 +67,8 @@ Gestor personal de suscripciones. Registra tus servicios recurrentes (streaming,
 | `pnpm build` | Build de producción |
 | `pnpm start` | Sirve el build de producción |
 | `pnpm lint` | Ejecuta ESLint |
+| `pnpm db:seed` | Siembra los catálogos (idempotente) |
+| `pnpm db:deploy` | Deploy: aplica migraciones y siembra catálogos |
 | `npx tsc --noEmit` | Verificación de tipos |
 
 ## Base de datos
