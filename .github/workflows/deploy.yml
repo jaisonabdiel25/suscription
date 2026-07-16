@@ -1,0 +1,52 @@
+name: Deploy
+
+# Aplica migraciones + seed de catálogos y valida el build.
+# El ambiente (y por tanto los secretos, p. ej. DATABASE_URL) se elige por rama:
+#   - push a DEV  -> GitHub Environment "staging"
+#   - push a main -> GitHub Environment "production"
+# Configura cada Environment en Settings → Environments con su secreto
+# DATABASE_URL (y BETTER_AUTH_SECRET / BETTER_AUTH_URL si el build los necesita).
+on:
+  push:
+    branches: [main, DEV]
+  workflow_dispatch:
+
+# Evita que dos ejecuciones sobre la misma rama toquen la base en paralelo.
+concurrency:
+  group: deploy-${{ github.ref_name }}
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: ${{ github.ref_name == 'main' && 'production' || 'staging' }}
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      BETTER_AUTH_SECRET: ${{ secrets.BETTER_AUTH_SECRET }}
+      BETTER_AUTH_URL: ${{ secrets.BETTER_AUTH_URL }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: pnpm
+
+      # postinstall corre `prisma generate` automáticamente.
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # migrate deploy aplica migraciones pendientes; db seed puebla los
+      # catálogos con ids fijos (idempotente, seguro en cada ejecución).
+      - name: Apply migrations and seed catalogs
+        run: pnpm db:deploy
+
+      - name: Build
+        run: pnpm build
