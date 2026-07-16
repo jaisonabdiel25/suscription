@@ -40,7 +40,8 @@ export const CATALOG_SEED: CatalogSeedRow[] = [
   { id: "24ba9154-b1df-464f-a78d-b28a0275b6e7", catalogName: "CATEGORY",   catalogId: "EDUCACION",     catalogDescription: "Educación",             ln: "es", sortOrder: 3 },
   { id: "5f968707-cf02-40a2-a467-c9b9a63a1526", catalogName: "CATEGORY",   catalogId: "SALUD",         catalogDescription: "Salud",                 ln: "es", sortOrder: 4 },
   { id: "d515fdab-f1c5-4f38-b325-86f88f9f4c6c", catalogName: "CATEGORY",   catalogId: "GAMING",        catalogDescription: "Gaming",                ln: "es", sortOrder: 5 },
-  { id: "2ae6c40d-22a0-435a-9508-55715b95c6b9", catalogName: "CATEGORY",   catalogId: "OTROS",         catalogDescription: "Otros",                 ln: "es", sortOrder: 6 },
+  { id: "f0c1e3d4-5b6a-4f8e-9c2b-1d2e3f4a5b6c", catalogName: "CATEGORY",   catalogId: "SERVICE",      catalogDescription: "Servicio",               ln: "es", sortOrder: 6 },
+  { id: "2ae6c40d-22a0-435a-9508-55715b95c6b9", catalogName: "CATEGORY",   catalogId: "OTROS",         catalogDescription: "Otros",                 ln: "es", sortOrder: 7 },
 
   { id: "ee16b241-2924-4a52-ae44-c86138daa9f8", catalogName: "IMPORTANCY", catalogId: "BAJA",          catalogDescription: "Baja",                  ln: "es", sortOrder: 0 },
   { id: "6e657d1c-bc35-4efa-8000-a1d8d9e280da", catalogName: "IMPORTANCY", catalogId: "MEDIA",         catalogDescription: "Media",                 ln: "es", sortOrder: 1 },
